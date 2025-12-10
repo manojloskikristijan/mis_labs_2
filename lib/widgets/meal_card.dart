@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/meal.dart';
+import '../services/favorites_service.dart';
 
-class MealCard extends StatelessWidget {
+class MealCard extends StatefulWidget {
   final Meal meal;
   final VoidCallback onTap;
 
@@ -12,7 +13,51 @@ class MealCard extends StatelessWidget {
   });
 
   @override
+  State<MealCard> createState() => _MealCardState();
+}
+
+class _MealCardState extends State<MealCard> {
+  final FavoritesService _favoritesService = FavoritesService();
+
+  @override
+  void initState() {
+    super.initState();
+    _favoritesService.addListener(_onFavoritesChanged);
+  }
+
+  @override
+  void dispose() {
+    _favoritesService.removeListener(_onFavoritesChanged);
+    super.dispose();
+  }
+
+  void _onFavoritesChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _toggleFavorite() {
+    final wasAlreadyFavorite = _favoritesService.isFavorite(widget.meal.id);
+    _favoritesService.toggleFavorite(widget.meal);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          wasAlreadyFavorite
+              ? '${widget.meal.name} отстранет од омилени'
+              : '${widget.meal.name} додаден во омилени',
+        ),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isFavorite = _favoritesService.isFavorite(widget.meal.id);
+
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 2,
@@ -20,7 +65,7 @@ class MealCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
-        onTap: onTap,
+        onTap: widget.onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -29,9 +74,9 @@ class MealCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   Hero(
-                    tag: meal.id,
+                    tag: widget.meal.id,
                     child: Image.network(
-                      meal.thumbnail,
+                      widget.meal.thumbnail,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: Colors.grey[300],
@@ -48,6 +93,27 @@ class MealCard extends StatelessWidget {
                           ),
                         );
                       },
+                    ),
+                  ),
+                  // Favorite button
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Material(
+                      color: Colors.black.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(20),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: _toggleFavorite,
+                        child: Padding(
+                          padding: const EdgeInsets.all(6),
+                          child: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: isFavorite ? Colors.red : Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   Positioned(
@@ -70,7 +136,7 @@ class MealCard extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        meal.name,
+                        widget.meal.name,
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/category.dart';
-import '../models/recipe.dart';
 import '../services/meal_api_service.dart';
+import '../services/notification_service.dart';
 import '../widgets/category_card.dart';
 import '../widgets/search_bar_widget.dart';
 import 'meals_by_category_screen.dart';
@@ -95,6 +95,35 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       appBar: AppBar(
         title: const Text('Recipe Categories'),
         actions: [
+          GestureDetector(
+            onLongPress: () async {
+              final token = await NotificationService().getToken();
+              if (!context.mounted) return;
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('FCM Token'),
+                  content: SelectableText(token ?? 'Token not available'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            child: IconButton(
+              icon: const Icon(Icons.notifications),
+              onPressed: () {
+                NotificationService().showImmediateNotification();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Нотификацијата е испратена!')),
+                );
+              },
+              tooltip: 'Тест нотификација (долго притисни за FCM token)',
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.shuffle),
             onPressed: _showRandomRecipe,

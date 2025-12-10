@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "584626151854",
+    "project_id": "mis-labs-e5276",
+    "storage_bucket": "mis-labs-e5276.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:584626151854:android:ca50a656e4a838cddc683f",
+        "android_client_info": {
+          "package_name": "com.example.mis_labs_2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC78sVOZb7hO9NOgxbFXujUfxS1b-4AyzM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
